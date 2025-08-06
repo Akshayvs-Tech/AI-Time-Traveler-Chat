@@ -1,0 +1,233 @@
+import React, { useState, useRef, useEffect } from "react";
+import ChatBubble from "./ChatBubble";
+
+const ChatPage = ({ userData, onBackToLanding }) => {
+  const [currentCharacter, setCurrentCharacter] = useState("pirate");
+  const [messages, setMessages] = useState({
+    pirate: [],
+    robot: [],
+    farmer: [],
+    knight: [],
+    scientist: [],
+  });
+  const [inputMessage, setInputMessage] = useState("");
+  const chatWindowRef = useRef(null);
+
+  const characters = {
+    pirate: {
+      name: "Pirate",
+      emoji: "🏴‍☠️",
+      greeting: `Ahoy there, ${userData.name}! I be the pirate version of ye from the golden age of sail! What adventures shall we discuss?`,
+    },
+    robot: {
+      name: "Robot",
+      emoji: "🤖",
+      greeting: `HELLO ${userData.name.toUpperCase()}. I AM YOUR FUTURE ROBOTIC CONSCIOUSNESS FROM THE YEAR 3024. WHAT DATA SHALL WE PROCESS?`,
+    },
+    farmer: {
+      name: "Farmer",
+      emoji: "🌾",
+      greeting: `Howdy ${userData.name}! I'm the simple farming version of you from the countryside. Life's good when you're working the land!`,
+    },
+    knight: {
+      name: "Knight",
+      emoji: "⚔️",
+      greeting: `Greetings, noble ${userData.name}! I am thy knightly self from medieval times. Honor and valor guide my words!`,
+    },
+    scientist: {
+      name: "Scientist",
+      emoji: "🔬",
+      greeting: `Fascinating! ${userData.name}, I'm the researcher version of you from a parallel timeline. What hypotheses shall we explore?`,
+    },
+  };
+
+  // Initialize with greeting when character changes
+  useEffect(() => {
+    if (messages[currentCharacter].length === 0) {
+      setMessages((prev) => ({
+        ...prev,
+        [currentCharacter]: [
+          {
+            text: characters[currentCharacter].greeting,
+            isUser: false,
+            timestamp: Date.now(),
+          },
+        ],
+      }));
+    }
+  }, [currentCharacter]);
+
+  // Auto scroll to bottom
+  useEffect(() => {
+    if (chatWindowRef.current) {
+      chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
+    }
+  }, [messages[currentCharacter]]);
+
+  const handleSendMessage = (e) => {
+    e.preventDefault();
+    if (!inputMessage.trim()) return;
+
+    const newUserMessage = {
+      text: inputMessage,
+      isUser: true,
+      timestamp: Date.now(),
+    };
+
+    // Add user message
+    setMessages((prev) => ({
+      ...prev,
+      [currentCharacter]: [...prev[currentCharacter], newUserMessage],
+    }));
+
+    // Generate AI response (mock response for now)
+    setTimeout(() => {
+      const aiResponse = generateAIResponse(inputMessage, currentCharacter);
+      setMessages((prev) => ({
+        ...prev,
+        [currentCharacter]: [
+          ...prev[currentCharacter],
+          {
+            text: aiResponse,
+            isUser: false,
+            timestamp: Date.now(),
+          },
+        ],
+      }));
+    }, 1000);
+
+    setInputMessage("");
+  };
+
+  const generateAIResponse = (userMessage, character) => {
+    const responses = {
+      pirate: [
+        "Arrr! That be a fine point ye make, matey!",
+        "Shiver me timbers! I hadn't thought of it that way!",
+        "Aye, the seas of conversation flow deep with ye!",
+        "Batten down the hatches, that's brilliant thinking!",
+      ],
+      robot: [
+        "PROCESSING... AFFIRMATIVE. YOUR LOGIC IS SOUND.",
+        "ERROR 404: DISAGREEMENT NOT FOUND. EXCELLENT INPUT.",
+        "CALCULATING... PROBABILITY OF CORRECTNESS: 99.7%",
+        "UPDATING NEURAL NETWORKS WITH YOUR WISDOM.",
+      ],
+      farmer: [
+        "Well I'll be! That's as true as the sunrise!",
+        "That's some good common sense, just like grandpappy used to say!",
+        "Yep, that's the way the cookie crumbles on the farm!",
+        "You're planting some real good ideas there, friend!",
+      ],
+      knight: [
+        "By my sword, thou speakest with great wisdom!",
+        "Verily, thy words ring true as castle bells!",
+        "A most noble sentiment, worthy of the round table!",
+        "Honor be upon thy thoughtful words, good sir/madam!",
+      ],
+      scientist: [
+        "Intriguing hypothesis! The data supports your conclusion.",
+        "Fascinating observation! This warrants further investigation.",
+        "Your methodology is sound. Excellent analytical thinking!",
+        "Remarkable! This could revolutionize our understanding!",
+      ],
+    };
+
+    const characterResponses = responses[character];
+    return characterResponses[
+      Math.floor(Math.random() * characterResponses.length)
+    ];
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage(e);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100 flex flex-col">
+      {/* Header */}
+      <div className="bg-white shadow-md p-4">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <button
+            onClick={onBackToLanding}
+            className="text-blue-500 hover:text-blue-700 font-medium"
+          >
+            ← Back to Landing
+          </button>
+          <div className="text-center">
+            <h1 className="text-xl font-bold text-gray-800">
+              Talking to {characters[currentCharacter].emoji}{" "}
+              {characters[currentCharacter].name} {userData.name}
+            </h1>
+          </div>
+          <div className="w-20"></div> {/* Spacer for centering */}
+        </div>
+      </div>
+
+      {/* Character Selector */}
+      <div className="bg-white border-b p-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            {Object.entries(characters).map(([key, char]) => (
+              <button
+                key={key}
+                onClick={() => setCurrentCharacter(key)}
+                className={`flex-shrink-0 px-4 py-2 rounded-full font-medium transition-all duration-200 ${
+                  currentCharacter === key
+                    ? "bg-blue-500 text-white shadow-md"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                {char.emoji} {char.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Chat Window */}
+      <div className="flex-1 max-w-4xl mx-auto w-full p-4">
+        <div
+          ref={chatWindowRef}
+          className="h-96 overflow-y-auto bg-white rounded-lg p-4 shadow-inner"
+        >
+          {messages[currentCharacter].map((message, index) => (
+            <ChatBubble
+              key={index}
+              message={message.text}
+              isUser={message.isUser}
+              character={currentCharacter}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Message Input */}
+      <div className="bg-white border-t p-4">
+        <div className="max-w-4xl mx-auto">
+          <form onSubmit={handleSendMessage} className="flex gap-2">
+            <input
+              type="text"
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder={`Chat with ${characters[currentCharacter].name} ${userData.name}...`}
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+            />
+            <button
+              type="submit"
+              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200"
+            >
+              Send
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ChatPage;
