@@ -41,6 +41,14 @@ const ChatPage = ({ userData, onBackToLanding }) => {
     },
   };
 
+  const characterMap = {
+    pirate: "Pirate Vedha",
+    robot: "Robot Vedha",
+    farmer: "Farmer Vedha",
+    knight: "Knight Vedha",
+    scientist: "Scientist Vedha",
+  };
+
   // Initialize with greeting when character changes
   useEffect(() => {
     if (messages[currentCharacter].length === 0) {
@@ -64,7 +72,7 @@ const ChatPage = ({ userData, onBackToLanding }) => {
     }
   }, [messages[currentCharacter]]);
 
-  const handleSendMessage = (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!inputMessage.trim()) return;
 
@@ -80,63 +88,56 @@ const ChatPage = ({ userData, onBackToLanding }) => {
       [currentCharacter]: [...prev[currentCharacter], newUserMessage],
     }));
 
-    // Generate AI response (mock response for now)
-    setTimeout(() => {
-      const aiResponse = generateAIResponse(inputMessage, currentCharacter);
+    const messageToSend = inputMessage;
+    setInputMessage("");
+
+    try {
+      // Call backend API
+      const response = await fetch("http://localhost:5000/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: messageToSend,
+          character: currentCharacter,
+          name: userData.name,
+          description: userData.description,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.reply) {
+        setMessages((prev) => ({
+          ...prev,
+          [currentCharacter]: [
+            ...prev[currentCharacter],
+            {
+              text: data.reply,
+              isUser: false,
+              timestamp: Date.now(),
+            },
+          ],
+        }));
+      } else {
+        throw new Error(data.error || "Failed to get response");
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+      // Add error message to chat
       setMessages((prev) => ({
         ...prev,
         [currentCharacter]: [
           ...prev[currentCharacter],
           {
-            text: aiResponse,
+            text: "Sorry, I'm having trouble connecting right now. Please try again later.",
             isUser: false,
             timestamp: Date.now(),
           },
         ],
       }));
-    }, 1000);
-
-    setInputMessage("");
-  };
-
-  const generateAIResponse = (userMessage, character) => {
-    const responses = {
-      pirate: [
-        "Arrr! That be a fine point ye make, matey!",
-        "Shiver me timbers! I hadn't thought of it that way!",
-        "Aye, the seas of conversation flow deep with ye!",
-        "Batten down the hatches, that's brilliant thinking!",
-      ],
-      robot: [
-        "PROCESSING... AFFIRMATIVE. YOUR LOGIC IS SOUND.",
-        "ERROR 404: DISAGREEMENT NOT FOUND. EXCELLENT INPUT.",
-        "CALCULATING... PROBABILITY OF CORRECTNESS: 99.7%",
-        "UPDATING NEURAL NETWORKS WITH YOUR WISDOM.",
-      ],
-      farmer: [
-        "Well I'll be! That's as true as the sunrise!",
-        "That's some good common sense, just like grandpappy used to say!",
-        "Yep, that's the way the cookie crumbles on the farm!",
-        "You're planting some real good ideas there, friend!",
-      ],
-      knight: [
-        "By my sword, thou speakest with great wisdom!",
-        "Verily, thy words ring true as castle bells!",
-        "A most noble sentiment, worthy of the round table!",
-        "Honor be upon thy thoughtful words, good sir/madam!",
-      ],
-      scientist: [
-        "Intriguing hypothesis! The data supports your conclusion.",
-        "Fascinating observation! This warrants further investigation.",
-        "Your methodology is sound. Excellent analytical thinking!",
-        "Remarkable! This could revolutionize our understanding!",
-      ],
-    };
-
-    const characterResponses = responses[character];
-    return characterResponses[
-      Math.floor(Math.random() * characterResponses.length)
-    ];
+    }
   };
 
   const handleKeyPress = (e) => {
