@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import ChatBubble from "./ChatBubble";
 
-const ChatPage = ({ userData, onBackToLanding }) => {
+const ChatPage = ({ userData, onBackToLogin }) => {
   const [currentCharacter, setCurrentCharacter] = useState("pirate");
   const [messages, setMessages] = useState({
     pirate: [],
@@ -153,10 +153,10 @@ const ChatPage = ({ userData, onBackToLanding }) => {
       <div className="bg-white shadow-md p-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <button
-            onClick={onBackToLanding}
+            onClick={onBackToLogin}
             className="text-blue-500 hover:text-blue-700 font-medium"
           >
-            ← Back to Landing
+            ← Back to Login
           </button>
           <div className="text-center">
             <h1 className="text-xl font-bold text-gray-800">
