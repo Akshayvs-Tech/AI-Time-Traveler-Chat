@@ -77,7 +77,7 @@ export default function BackgroundMusic({ currentCharacter }) {
     };
 
     const scheduleNextSound = () => {
-      const delay = 45000 + Math.random() * 30000;
+      const delay = 10000; // 10 seconds fixed delay
       return setTimeout(() => {
         playSound();
         timeoutRef.current = scheduleNextSound();
