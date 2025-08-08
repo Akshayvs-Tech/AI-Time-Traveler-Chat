@@ -1,6 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ChatBubble from "./ChatBubble";
+import TransmissionAlert from "../components/TransmissionAlert";
+import BackgroundMusic from "../components/BackgroundMusic";
+
+const FUTURE_CHARACTERS = ["Robot Vedha", "Scientist Vedha"];
 
 const ChatPage = () => {
   const [userData, setUserData] = useState(null);
@@ -13,6 +17,7 @@ const ChatPage = () => {
     scientist: [],
   });
   const [inputMessage, setInputMessage] = useState("");
+  const [alertVisible, setAlertVisible] = useState(false);
   const chatWindowRef = useRef(null);
   const navigate = useNavigate();
 
@@ -121,6 +126,14 @@ const ChatPage = () => {
     );
   }
 
+  const handleIncomingReply = (replyText, character) => {
+    if (FUTURE_CHARACTERS.includes(characterMap[character])) {
+      setAlertVisible(true);
+      document.body.classList.add("flicker");
+      setTimeout(() => document.body.classList.remove("flicker"), 700);
+    }
+  };
+
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!inputMessage.trim()) return;
@@ -161,7 +174,7 @@ const ChatPage = () => {
       }
 
       const data = await response.json();
-      console.log('API Response:', data); // Debug log
+      console.log("API Response:", data); // Debug log
 
       if (data.reply) {
         setMessages((prev) => ({
@@ -175,21 +188,26 @@ const ChatPage = () => {
             },
           ],
         }));
+
+        // Add this line to trigger future effects
+        handleIncomingReply(data.reply, currentCharacter);
       } else {
         throw new Error(data.error || "No reply received from server");
       }
     } catch (error) {
       console.error("Error sending message:", error);
-      
-      let errorMessage = "Sorry, I'm having trouble connecting right now. Please try again later.";
-      
+
+      let errorMessage =
+        "Sorry, I'm having trouble connecting right now. Please try again later.";
+
       // Provide more specific error messages
-      if (error.message.includes('Failed to fetch')) {
-        errorMessage = "Can't connect to the server. Please check if the backend is running.";
-      } else if (error.message.includes('HTTP error')) {
+      if (error.message.includes("Failed to fetch")) {
+        errorMessage =
+          "Can't connect to the server. Please check if the backend is running.";
+      } else if (error.message.includes("HTTP error")) {
         errorMessage = `Server error: ${error.message}`;
       }
-      
+
       // Add error message to chat
       setMessages((prev) => ({
         ...prev,
@@ -213,7 +231,14 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
+    <div className="min-h-screen bg-gray-100 flex flex-col relative">
+      <BackgroundMusic />
+      <TransmissionAlert
+        visible={alertVisible}
+        text={"⚠️ MESSAGE FROM THE FUTURE"}
+        onDone={() => setAlertVisible(false)}
+      />
+
       {/* Header */}
       <div className="bg-white shadow-md p-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
