@@ -1,13 +1,51 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-const LandingPage = ({ onStartChat }) => {
+const LandingPage = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if user is logged in, if not redirect to login
+    const userData = localStorage.getItem("userData");
+    if (!userData) {
+      navigate("/login");
+      return;
+    }
+
+    const user = JSON.parse(userData);
+
+    // Check if user is logged in
+    if (!user.isLoggedIn) {
+      navigate("/login");
+      return;
+    }
+
+    // If chat setup is already complete, go to chat
+    if (user.chatSetupComplete) {
+      navigate("/chat");
+      return;
+    }
+
+    // Pre-fill name from login data
+    setName(user.name || user.email.split("@")[0]);
+  }, [navigate]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (name.trim() && description.trim()) {
-      onStartChat({ name: name.trim(), description: description.trim() });
+      // Get existing user data and add chat data
+      const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+      const completeChatData = {
+        ...userData,
+        name: name.trim(),
+        description: description.trim(),
+        chatSetupComplete: true,
+      };
+
+      localStorage.setItem("userData", JSON.stringify(completeChatData));
+      navigate("/chat");
     }
   };
 

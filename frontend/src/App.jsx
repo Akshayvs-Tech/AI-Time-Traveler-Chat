@@ -1,29 +1,22 @@
-import React, { useState } from "react";
-import Login from "./components/Login";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
 import ChatPage from "./components/ChatPage";
+import LoginPage from "./components/LoginPage";
+import LandingPage from "./components/LandingPage";
+import RegisterPage from "./components/RegisterPage";
 
 const App = () => {
-  const [currentPage, setCurrentPage] = useState("login");
-  const [userData, setUserData] = useState(null);
-
-  const handleLogin = (data) => {
-    setUserData(data);
-    setCurrentPage("chat");
-  };
-
-  const handleBackToLogin = () => {
-    setCurrentPage("login");
-    setUserData(null);
-  };
-
   return (
-    <div className="App">
-      {currentPage === "login" ? (
-        <Login onLogin={handleLogin} />
-      ) : (
-        <ChatPage userData={userData} onBackToLogin={handleBackToLogin} />
-      )}
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<RegisterPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/profile" element={<LandingPage />} />
+        <Route path="/chat" element={<ChatPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+      </Routes>
+    </Router>
   );
 };
 

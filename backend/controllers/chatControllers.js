@@ -2,42 +2,74 @@ const fetch = require("node-fetch");
 const characterPrompts = require("../utils/prompts");
 
 const chatHandler = async (req, res) => {
+  console.log("=== CHAT HANDLER CALLED ===");
+  console.log("Request body:", req.body);
+  console.log("API Key exists:", !!process.env.OPENROUTER_API_KEY);
+
   const { message, character, name, description } = req.body;
 
+  // Check if all required fields are present
+  if (!message || !character || !name) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
   const basePrompt = characterPrompts[character];
+  console.log("Character prompt found:", !!basePrompt);
 
-  const fullPrompt = `
-${basePrompt}
-You are now chatting with a human from the future named ${name}, who describes themselves as: "${description}".
+  if (!basePrompt) {
+    return res.status(400).json({ error: `Unknown character: ${character}` });
+  }
 
-Human: ${message}
-${character}:`;
+  if (!process.env.OPENROUTER_API_KEY) {
+    return res.status(500).json({ error: "OpenRouter API key not configured" });
+  }
 
   try {
+    console.log("Making OpenRouter API call...");
+    
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
-       headers: {
+      headers: {
         "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://your-site.com", // Replace with your actual deployed site
+        "HTTP-Referer": "https://your-site.com", // Replace with your actual site
         "X-Title": "AI Time Traveler Chat"
       },
       body: JSON.stringify({
         model: "openai/gpt-3.5-turbo",
         messages: [
           { role: "system", content: basePrompt },
-          { role: "user", content: message }
-        ]
+          { role: "user", content: `Human named ${name} (${description}): ${message}` }
+        ],
+        max_tokens: 150,
+        temperature: 0.7
       }),
     });
 
-    const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content;
+    console.log("OpenRouter response status:", response.status);
 
-    res.json({ reply });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("OpenRouter error:", errorText);
+      return res.status(500).json({ error: "OpenRouter API request failed" });
+    }
+
+    const data = await response.json();
+    console.log("OpenRouter response data:", JSON.stringify(data, null, 2));
+
+    const reply = data.choices?.[0]?.message?.content;
+    
+    if (!reply) {
+      console.error("No reply in OpenRouter response:", data);
+      return res.status(500).json({ error: "No reply received from AI" });
+    }
+
+    console.log("Sending reply:", reply);
+    res.json({ reply: reply.trim() });
+
   } catch (err) {
     console.error("ChatController Error:", err);
-    res.status(500).json({ error: "OpenRouter API request failed." });
+    res.status(500).json({ error: "Internal server error: " + err.message });
   }
 };
 

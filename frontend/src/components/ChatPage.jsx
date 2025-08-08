@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import ChatBubble from "./ChatBubble";
 
-const ChatPage = ({ userData, onBackToLogin }) => {
+const ChatPage = () => {
+  const [userData, setUserData] = useState(null);
   const [currentCharacter, setCurrentCharacter] = useState("pirate");
   const [messages, setMessages] = useState({
     pirate: [],
@@ -12,34 +14,65 @@ const ChatPage = ({ userData, onBackToLogin }) => {
   });
   const [inputMessage, setInputMessage] = useState("");
   const chatWindowRef = useRef(null);
+  const navigate = useNavigate();
 
-  const characters = {
-    pirate: {
-      name: "Pirate",
-      emoji: "🏴‍☠️",
-      greeting: `Ahoy there, ${userData.name}! I be the pirate version of ye from the golden age of sail! What adventures shall we discuss?`,
-    },
-    robot: {
-      name: "Robot",
-      emoji: "🤖",
-      greeting: `HELLO ${userData.name.toUpperCase()}. I AM YOUR FUTURE ROBOTIC CONSCIOUSNESS FROM THE YEAR 3024. WHAT DATA SHALL WE PROCESS?`,
-    },
-    farmer: {
-      name: "Farmer",
-      emoji: "🌾",
-      greeting: `Howdy ${userData.name}! I'm the simple farming version of you from the countryside. Life's good when you're working the land!`,
-    },
-    knight: {
-      name: "Knight",
-      emoji: "⚔️",
-      greeting: `Greetings, noble ${userData.name}! I am thy knightly self from medieval times. Honor and valor guide my words!`,
-    },
-    scientist: {
-      name: "Scientist",
-      emoji: "🔬",
-      greeting: `Fascinating! ${userData.name}, I'm the researcher version of you from a parallel timeline. What hypotheses shall we explore?`,
-    },
+  // Load user data and check authentication
+  useEffect(() => {
+    const storedUserData = localStorage.getItem("userData");
+    if (!storedUserData) {
+      navigate("/login");
+      return;
+    }
+
+    const user = JSON.parse(storedUserData);
+    if (!user.isLoggedIn) {
+      navigate("/login");
+      return;
+    }
+
+    if (!user.chatSetupComplete) {
+      navigate("/profile");
+      return;
+    }
+
+    setUserData(user);
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("userData");
+    navigate("/login");
   };
+
+  // Define characters (will only be used when userData exists)
+  const characters = userData
+    ? {
+        pirate: {
+          name: "Pirate",
+          emoji: "🏴‍☠️",
+          greeting: `Ahoy there, ${userData.name}! I be the pirate version of ye from the golden age of sail! What adventures shall we discuss?`,
+        },
+        robot: {
+          name: "Robot",
+          emoji: "🤖",
+          greeting: `HELLO ${userData.name.toUpperCase()}. I AM YOUR FUTURE ROBOTIC CONSCIOUSNESS FROM THE YEAR 3024. WHAT DATA SHALL WE PROCESS?`,
+        },
+        farmer: {
+          name: "Farmer",
+          emoji: "🌾",
+          greeting: `Howdy ${userData.name}! I'm the simple farming version of you from the countryside. Life's good when you're working the land!`,
+        },
+        knight: {
+          name: "Knight",
+          emoji: "⚔️",
+          greeting: `Greetings, noble ${userData.name}! I am thy knightly self from medieval times. Honor and valor guide my words!`,
+        },
+        scientist: {
+          name: "Scientist",
+          emoji: "🔬",
+          greeting: `Fascinating! ${userData.name}, I'm the researcher version of you from a parallel timeline. What hypotheses shall we explore?`,
+        },
+      }
+    : {};
 
   const characterMap = {
     pirate: "Pirate Vedha",
@@ -51,7 +84,11 @@ const ChatPage = ({ userData, onBackToLogin }) => {
 
   // Initialize with greeting when character changes
   useEffect(() => {
-    if (messages[currentCharacter].length === 0) {
+    if (
+      userData &&
+      characters[currentCharacter] &&
+      messages[currentCharacter].length === 0
+    ) {
       setMessages((prev) => ({
         ...prev,
         [currentCharacter]: [
@@ -63,7 +100,7 @@ const ChatPage = ({ userData, onBackToLogin }) => {
         ],
       }));
     }
-  }, [currentCharacter]);
+  }, [currentCharacter, userData, characters, messages]);
 
   // Auto scroll to bottom
   useEffect(() => {
@@ -71,6 +108,18 @@ const ChatPage = ({ userData, onBackToLogin }) => {
       chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
     }
   }, [messages[currentCharacter]]);
+
+  // Don't render the chat interface until userData is loaded
+  if (!userData) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -106,7 +155,13 @@ const ChatPage = ({ userData, onBackToLogin }) => {
         }),
       });
 
+      // Check if the response is ok
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
+      console.log('API Response:', data); // Debug log
 
       if (data.reply) {
         setMessages((prev) => ({
@@ -121,17 +176,27 @@ const ChatPage = ({ userData, onBackToLogin }) => {
           ],
         }));
       } else {
-        throw new Error(data.error || "Failed to get response");
+        throw new Error(data.error || "No reply received from server");
       }
     } catch (error) {
       console.error("Error sending message:", error);
+      
+      let errorMessage = "Sorry, I'm having trouble connecting right now. Please try again later.";
+      
+      // Provide more specific error messages
+      if (error.message.includes('Failed to fetch')) {
+        errorMessage = "Can't connect to the server. Please check if the backend is running.";
+      } else if (error.message.includes('HTTP error')) {
+        errorMessage = `Server error: ${error.message}`;
+      }
+      
       // Add error message to chat
       setMessages((prev) => ({
         ...prev,
         [currentCharacter]: [
           ...prev[currentCharacter],
           {
-            text: "Sorry, I'm having trouble connecting right now. Please try again later.",
+            text: errorMessage,
             isUser: false,
             timestamp: Date.now(),
           },
@@ -153,7 +218,7 @@ const ChatPage = ({ userData, onBackToLogin }) => {
       <div className="bg-white shadow-md p-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <button
-            onClick={onBackToLogin}
+            onClick={handleLogout}
             className="text-blue-500 hover:text-blue-700 font-medium"
           >
             ← Back to Login
