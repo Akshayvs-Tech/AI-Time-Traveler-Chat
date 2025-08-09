@@ -56,7 +56,10 @@ const ChatBubble = ({ message, isUser, character }) => {
             <div className="text-sm leading-relaxed">{message}</div>
           </div>
           <div className="text-xs text-gray-400 mt-1 text-right">
-            {new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+            {new Date().toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
           </div>
         </div>
       </div>
@@ -78,7 +81,10 @@ const ChatBubble = ({ message, isUser, character }) => {
           <div className="text-sm leading-relaxed">{message}</div>
         </div>
         <div className="text-xs text-gray-400 mt-1">
-          {new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+          {new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
         </div>
       </div>
     </div>

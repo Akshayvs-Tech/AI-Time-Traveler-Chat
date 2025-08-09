@@ -88,9 +88,7 @@ const LoginPage = () => {
               />
             </div>
           </div>
-          <h1 className="text-3xl font-bold mb-2">
-            Welcome Back
-          </h1>
+          <h1 className="text-3xl font-bold mb-2">Welcome Back</h1>
           <p className="text-blue-100 text-sm">
             Sign in to continue your time travel adventures
           </p>
@@ -142,8 +140,18 @@ const LoginPage = () => {
             {/* Error Message */}
             {error && (
               <div className="text-red-700 text-sm bg-red-50 border border-red-200 p-4 rounded-xl flex items-center gap-3">
-                <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  className="w-5 h-5 text-red-500 flex-shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
                 {error}
               </div>
@@ -163,8 +171,18 @@ const LoginPage = () => {
               ) : (
                 <>
                   <span>Sign In</span>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+                    />
                   </svg>
                 </>
               )}
@@ -173,10 +191,8 @@ const LoginPage = () => {
 
           {/* Footer */}
           <div className="text-center mt-8 pt-6 border-t border-gray-100">
-            <p className="text-sm text-gray-500 mb-3">
-              Don't have an account?
-            </p>
-            <button 
+            <p className="text-sm text-gray-500 mb-3">Don't have an account?</p>
+            <button
               onClick={() => navigate("/register")}
               className="text-blue-600 hover:text-blue-800 font-medium text-sm underline underline-offset-2"
             >

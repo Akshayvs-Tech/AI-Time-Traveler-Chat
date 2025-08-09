@@ -63,9 +63,7 @@ const LandingPage = () => {
               />
             </div>
           </div>
-          <h1 className="text-3xl font-bold mb-2">
-            AI Time Traveler Chat
-          </h1>
+          <h1 className="text-3xl font-bold mb-2">AI Time Traveler Chat</h1>
           <p className="text-blue-100 text-sm">
             Meet different versions of yourself from across time and space
           </p>
@@ -121,8 +119,18 @@ const LandingPage = () => {
               className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-semibold py-4 px-6 rounded-xl transform hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
             >
               <span>Start Your Journey</span>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
               </svg>
             </button>
           </form>

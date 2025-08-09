@@ -247,8 +247,18 @@ const ChatPage = () => {
               onClick={handleLogout}
               className="text-gray-600 hover:text-gray-800 font-medium flex items-center gap-2 transition-colors"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                />
               </svg>
               Back to Login
             </button>
@@ -257,7 +267,8 @@ const ChatPage = () => {
                 AI Time Traveler Chat
               </h1>
               <p className="text-sm text-gray-600">
-                Talking to {characters[currentCharacter].emoji} {characters[currentCharacter].name} {userData.name}
+                Talking to {characters[currentCharacter].emoji}{" "}
+                {characters[currentCharacter].name} {userData.name}
               </p>
             </div>
             <div className="w-32"></div> {/* Spacer for centering */}
@@ -293,7 +304,7 @@ const ChatPage = () => {
           ref={chatWindowRef}
           className="h-[500px] overflow-y-auto bg-white rounded-2xl shadow-lg border border-gray-200 p-6"
           style={{
-            background: 'linear-gradient(180deg, #ffffff 0%, #fafafa 100%)'
+            background: "linear-gradient(180deg, #ffffff 0%, #fafafa 100%)",
           }}
         >
           {messages[currentCharacter].map((message, index) => (
@@ -307,9 +318,15 @@ const ChatPage = () => {
           {messages[currentCharacter].length === 0 && (
             <div className="flex items-center justify-center h-full text-gray-500">
               <div className="text-center">
-                <div className="text-6xl mb-4">{characters[currentCharacter].emoji}</div>
-                <p className="text-lg font-medium">Start a conversation with {characters[currentCharacter].name}</p>
-                <p className="text-sm text-gray-400 mt-2">Type a message below to begin</p>
+                <div className="text-6xl mb-4">
+                  {characters[currentCharacter].emoji}
+                </div>
+                <p className="text-lg font-medium">
+                  Start a conversation with {characters[currentCharacter].name}
+                </p>
+                <p className="text-sm text-gray-400 mt-2">
+                  Type a message below to begin
+                </p>
               </div>
             </div>
           )}
@@ -334,8 +351,18 @@ const ChatPage = () => {
               type="submit"
               className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                />
               </svg>
               Send
             </button>
