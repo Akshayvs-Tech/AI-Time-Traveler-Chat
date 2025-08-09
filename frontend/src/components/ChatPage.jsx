@@ -231,7 +231,7 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col relative">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col relative">
       <BackgroundMusic />
       <TransmissionAlert
         visible={alertVisible}
@@ -240,39 +240,47 @@ const ChatPage = () => {
       />
 
       {/* Header */}
-      <div className="bg-white shadow-md p-4">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <button
-            onClick={handleLogout}
-            className="text-blue-500 hover:text-blue-700 font-medium"
-          >
-            ← Back to Login
-          </button>
-          <div className="text-center">
-            <h1 className="text-xl font-bold text-gray-800">
-              Talking to {characters[currentCharacter].emoji}{" "}
-              {characters[currentCharacter].name} {userData.name}
-            </h1>
+      <div className="bg-white border-b border-gray-200 shadow-sm">
+        <div className="max-w-6xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={handleLogout}
+              className="text-gray-600 hover:text-gray-800 font-medium flex items-center gap-2 transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Back to Login
+            </button>
+            <div className="text-center">
+              <h1 className="text-2xl font-bold text-gray-900 mb-1">
+                AI Time Traveler Chat
+              </h1>
+              <p className="text-sm text-gray-600">
+                Talking to {characters[currentCharacter].emoji} {characters[currentCharacter].name} {userData.name}
+              </p>
+            </div>
+            <div className="w-32"></div> {/* Spacer for centering */}
           </div>
-          <div className="w-20"></div> {/* Spacer for centering */}
         </div>
       </div>
 
       {/* Character Selector */}
-      <div className="bg-white border-b p-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex gap-2 overflow-x-auto pb-2">
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-6xl mx-auto px-6 py-4">
+          <div className="flex gap-3 overflow-x-auto pb-2">
             {Object.entries(characters).map(([key, char]) => (
               <button
                 key={key}
                 onClick={() => setCurrentCharacter(key)}
-                className={`flex-shrink-0 px-4 py-2 rounded-full font-medium transition-all duration-200 ${
+                className={`flex-shrink-0 px-6 py-3 rounded-xl font-medium transition-all duration-200 flex items-center gap-2 ${
                   currentCharacter === key
-                    ? "bg-blue-500 text-white shadow-md"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg transform scale-105"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md"
                 }`}
               >
-                {char.emoji} {char.name}
+                <span className="text-lg">{char.emoji}</span>
+                <span>{char.name}</span>
               </button>
             ))}
           </div>
@@ -280,10 +288,13 @@ const ChatPage = () => {
       </div>
 
       {/* Chat Window */}
-      <div className="flex-1 max-w-4xl mx-auto w-full p-4">
+      <div className="flex-1 max-w-6xl mx-auto w-full p-6">
         <div
           ref={chatWindowRef}
-          className="h-96 overflow-y-auto bg-white rounded-lg p-4 shadow-inner"
+          className="h-[500px] overflow-y-auto bg-white rounded-2xl shadow-lg border border-gray-200 p-6"
+          style={{
+            background: 'linear-gradient(180deg, #ffffff 0%, #fafafa 100%)'
+          }}
         >
           {messages[currentCharacter].map((message, index) => (
             <ChatBubble
@@ -293,25 +304,39 @@ const ChatPage = () => {
               character={currentCharacter}
             />
           ))}
+          {messages[currentCharacter].length === 0 && (
+            <div className="flex items-center justify-center h-full text-gray-500">
+              <div className="text-center">
+                <div className="text-6xl mb-4">{characters[currentCharacter].emoji}</div>
+                <p className="text-lg font-medium">Start a conversation with {characters[currentCharacter].name}</p>
+                <p className="text-sm text-gray-400 mt-2">Type a message below to begin</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Message Input */}
-      <div className="bg-white border-t p-4">
-        <div className="max-w-4xl mx-auto">
-          <form onSubmit={handleSendMessage} className="flex gap-2">
-            <input
-              type="text"
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder={`Chat with ${characters[currentCharacter].name} ${userData.name}...`}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-            />
+      <div className="bg-white border-t border-gray-200 shadow-lg">
+        <div className="max-w-6xl mx-auto px-6 py-4">
+          <form onSubmit={handleSendMessage} className="flex gap-4 items-end">
+            <div className="flex-1">
+              <textarea
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder={`Chat with ${characters[currentCharacter].name} ${userData.name}...`}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 outline-none resize-none"
+                rows="2"
+              />
+            </div>
             <button
               type="submit"
-              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200"
+              className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
             >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              </svg>
               Send
             </button>
           </form>
